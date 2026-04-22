@@ -28,6 +28,7 @@
         border: 1.5px solid #ccc;
         border-radius: 6px;
         box-sizing: border-box;
+        /* Giúp input không bị tràn viền */
         transition: border-color 0.3s ease;
     }
 
@@ -68,42 +69,52 @@
     }
 </style>
 
-<h1>Đăng nhập</h1>
+<h1>Đăng nhập tư cách Admin</h1>
 
-<form action="<?= BASE_URL . '?action=check' ?>" method="post" onsubmit="return kiemloiLogin()">
+<form action="<?= BASE_URL . '?action=admin' ?>" method="post" onsubmit="return kiemloiform()">
     <p>
-        <label for="username">Tên đăng nhập</label>
-        <input type="text" name="username" id="username">
-        <span id="check_username" class="error-msg"></span>
+        <label for="adminname">Tên đăng nhập</label>
+        <input type="text" name="adminname" id="adminname">
+        <span id="check_adminname" class="error-msg"></span>
     </p>
     <p>
         <label for="password">Mật khẩu</label>
         <input type="password" name="password" id="password">
         <span id="check_password" class="error-msg"></span>
     </p>
-    <input type="hidden" name="email" value="">
-
     <button type="submit">Đăng nhập</button>
 </form>
 
 <script>
-    function kiemloiLogin() {
+    function kiemloiform() {
         var result = true;
-        var username = document.getElementById('username').value.trim();
+        var adminname = document.getElementById('adminname').value.trim();
         var password = document.getElementById('password').value.trim();
 
-        var check_username = document.getElementById('check_username');
+        var check_adminname = document.getElementById('check_adminname');
         var check_password = document.getElementById('check_password');
 
-        if (username === '') {
-            check_username.innerHTML = 'Tên đăng nhập không được để trống';
+        // Kiểm tra Tên đăng nhập
+        if (adminname === '') {
+            check_adminname.innerHTML = 'Tên đăng nhập không được để trống';
             result = false;
-        } else { check_username.innerHTML = ''; }
+        } else if (adminname.length < 3 || adminname.length > 30) {
+            check_adminname.innerHTML = 'Tên đăng nhập phải từ 3 - 30 kí tự';
+            result = false;
+        } else {
+            check_adminname.innerHTML = '';
+        }
 
+        // Kiểm tra Mật khẩu
         if (password === '') {
             check_password.innerHTML = 'Mật khẩu không được để trống';
             result = false;
-        } else { check_password.innerHTML = ''; }
+        } else if (password.length < 6 || password.length > 10) {
+            check_password.innerHTML = 'Mật khẩu phải từ 6 - 10 kí tự';
+            result = false;
+        } else {
+            check_password.innerHTML = '';
+        }
 
         return result;
     }

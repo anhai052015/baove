@@ -1,114 +1,231 @@
 <?php
 
-class ClientController {
+class ClientController
+{
     public $user;
     public $products;
-    public $addmin;
+    public $admin;
     public $comment;
-    function __construct(){
+
+    function __construct()
+    {
         $this->user = new User();
         $this->products = new Products();
-        $this->addmin = new Addmin();
+        $this->admin = new Admin();
         $this->comment = new Comment();
     }
 
-
-    function login(){
-        $message= "hãy đăng ký";
-        $view='client/login';
-        require_once PATH_VIEW . 'main.php';        
-    }
-    public function add() 
+    public function index()
     {
-        if($_SERVER['REQUEST_METHOD']){
-            $this->user->add($_POST);
-            $message= "bạn đã đăng nhập thành công";
-            header('Location:'.BASE_URL);
+        $categoryModel = new Category();
+        $categories = $categoryModel->getAll();
+
+        if (isset($_GET['action']) && $_GET['action'] == 'category' && isset($_GET['id'])) {
+            // Lọc sản phẩm theo ID danh mục
+            $dataAll = $this->products->category($_GET['id']);
+        } else {
+            $dataAll = $this->products->getAll();
         }
+
+        $view = 'client/home';
+        require_once PATH_VIEW . 'main.php';
     }
-    function regester(){
-        $message= "hãy đăng nhap";
-        $view='client/regester';
-        require_once PATH_VIEW . 'main.php';  
+
+    function login()
+    {
+        $message = "Hãy đăng nhập";
+        $view = 'client/login';
+        require_once PATH_VIEW . 'main.php';
     }
-    public function check() 
-    { 
-        if($_SERVER['REQUEST_METHOD']){
-            $data=$this->products->getAll();
-            $user=$this->user->check($_POST['username'],$_POST['password']);
-            if(!empty($user)){
-                $_SESSION['user'] = $user;
-                $_SESSION['regester'] = true;
-                $_SESSION['id']=$user['id'];
-                $message= "<h1 style='color: green;'>bạn đã đăng nhập thành công</h1>";
-                $title="trang chủ";
-                $view='client/home';
+
+    public function register()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = trim($_POST['username']);
+            $password = trim($_POST['password']);
+            $email = trim($_POST['email']);
+
+            if (!preg_match("/^[a-zA-Z0-9._%+-]+@gmail\.com$/", $email)) {
+                $_SESSION['msg'] = "Email phải là Gmail!";
+                header('Location: ' . BASE_URL . '?action=register');
+                exit;
+            }
+
+            $checkUser = $this->user->check($username, $password, $email);
+            if (!empty($checkUser)) {
+                $_SESSION['msg'] = "Tài khoản hoặc Email đã tồn tại!";
+                header('Location: ' . BASE_URL . '?action=register');
+                exit;
+            }
+
+            $hashedPass = password_hash($password, PASSWORD_BCRYPT);
+
+            $data = [
+                'username' => $username,
+                'email' => $email,
+                'password' => $hashedPass
+            ];
+
+            $row = $this->user->add($data);
+
+            if ($row > 0) {
+                $_SESSION['msg'] = "Đăng ký thành công, mời đăng nhập!";
+                header('Location: ' . BASE_URL . '?action=login');
+                exit;
+            } else {
+                $_SESSION['msg'] = "Đăng ký thất bại!";
+                header('Location: ' . BASE_URL . '?action=register');
+                exit;
+            }
+        }
+
+        $message = "Hãy đăng ký";
+        $view = 'client/register';
+        require_once PATH_VIEW . 'main.php';
+    }
+
+    public function check()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $dataAll = $this->products->getAll();
+            $user = $this->user->check($_POST['username'], $_POST['password'], $_POST['email']);
+
+            if (!empty($user)) {
+                $_SESSION['user'] = $user['username'];
+                $_SESSION['login'] = true;
+                $_SESSION['id'] = $user['id'];
+
+                $message = "<h1 style='color: green;'>Bạn đã đăng nhập thành công</h1>";
+                $title = "Trang chủ";
+                $view = 'client/home';
                 require_once PATH_VIEW . 'main.php';
-            }else{
-                $message= "<h1 style='color: red;'>bạn đã đăng nhập thất bại</h1>";
-                $view='client/regester';
-                require_once PATH_VIEW . 'main.php';           
+            } else {
+                $_SESSION['msg'] = "Bạn đã đăng nhập thất bại, sai thông tin!";
+                header('Location: ' . BASE_URL . '?action=login');
+                exit;
             }
         }
     }
-    public function check_addmin(){
-        if($_SERVER['REQUEST_METHOD']=='POST'){
-            $data=$_POST;
-            $addmin=$this->addmin->check($data);
-            if(empty($addmin)){
-                $_SESSION['msg']='ban dang nhap that bai';
-            }else{
-                // $_SESSION['addmin']=$addmin;
-                // $login=true;
-                $_SESSION['msg']='ban da dang nhap thanh cong';
+
+    public function into_admin()
+    {
+        $view = 'client/admin';
+        require_once PATH_VIEW . 'main.php';
+    }
+
+    public function check_admin()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = $_POST;
+            $admin = $this->admin->check($data);
+            if (empty($admin)) {
+                $_SESSION['msg'] = 'Bạn đăng nhập thất bại';
+                header('Location: ' . BASE_URL . '?action=into_admin');
+            } else {
+                $_SESSION['msg'] = 'Bạn đã đăng nhập thành công';
+                header('Location: ' . BASE_URL . '?mode=admin');
             }
-            header('Location: ' .BASE_URL.'?mode=addmin');
+            exit;
         }
     }
-    public function into_addmin(){
-        $view='client/addmin';
-        require_once PATH_VIEW . 'main.php';   
-    }
-    public function logout(){
+
+    public function logout()
+    {
         session_destroy();
-        header('Location: ' . BASE_URL );
+        header('Location: ' . BASE_URL);
         exit;
     }
-    public function lienhe(){
+
+    public function lienhe()
+    {
         $title = "Liên hệ";
         $view = 'client/lienhe';
         require_once PATH_VIEW . 'main.php';
     }
-    public function addComment(){
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user'])) {
-        $product_id = $_POST['product_id'];
-        $user_id = $_SESSION['user']['id'];
-        $content = $_POST['content'];
 
-        $this->comment->add($product_id, $user_id, $content);
+    public function detail()
+    {
+        if (isset($_GET['id'])) {
+            $data = $this->products->get($_GET['id']);
+            $data_comment = $this->comment->getByProduct($_GET['id']);
+            $view = 'client/detail';
+            require_once PATH_VIEW . 'main.php';
+        }
     }
-    header("Location: " . BASE_URL . "?mode=detail&id=" . $_POST['product_id']);
-    exit;
-}
-    public function checkout(){
-        if(isset($_SESSION['user'])){
-            if(isset($_GET['id'])){
-                $products=$this->products->get($_GET['id']);
-                $_SESSION['msg']='Đăng kí khóa học thành công';
-                $_SESSION['status']=true;     
-                $view='client/checkout';
-                require_once PATH_VIEW . 'main.php'; 
+
+    function comment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (isset($_SESSION['id'])) {
+                $user_id = $_SESSION['id'];
+                $data = [
+                    'content' => $_POST['content'],
+                    'product_id' => $_POST['product_id'],
+                    'user_id' => $user_id,
+                ];
+                $this->comment->add($data);
+                header('Location: ' . BASE_URL . '?action=detail&id=' . $_POST['product_id']);
+                exit;
+            } else {
+                $_SESSION['msg'] = 'Bạn phải đăng nhập mới được bình luận';
+                header('Location: ' . BASE_URL . '?action=login');
+                exit;
             }
-        }else{
-            $_SESSION['msg']='Đăng kí khóa học thất bại';
-            $_SESSION['status']=false;
-            header('Location: ' . BASE_URL );
+        }
+    }
+
+    function search()
+    {
+        if (isset($_GET['search']) && trim($_GET['search']) != '') {
+            $dataAll = $this->products->search($_GET['search']);
+            $view = 'client/home';
+            require_once PATH_VIEW . 'main.php';
+        } else {
+            $dataAll = $this->products->getAll();
+            $view = 'client/home';
+            require_once PATH_VIEW . 'main.php';
+        }
+    }
+
+    public function addToCart()
+    {
+        $id = $_GET['id'] ?? 0;
+
+        // Lấy thông tin sản phẩm
+        $product = $this->products->get($id);
+
+        if ($product) {
+            if (!isset($_SESSION['cart'])) {
+                $_SESSION['cart'] = [];
+            }
+
+            // Kiểm tra xem sản phẩm đã có trong giỏ chưa
+            if (isset($_SESSION['cart'][$id])) {
+                $_SESSION['cart'][$id]['quantity'] += 1;
+            } else {
+                // Thêm mới vào giỏ
+                $_SESSION['cart'][$id] = [
+                    'name' => $product['name'],
+                    'price' => $product['price'],
+                    'thumbnail' => $product['thumbnail'],
+                    'quantity' => 1
+                ];
+            }
+
+            $_SESSION['msg'] = "Đã thêm sản phẩm";
+        } else {
+            $_SESSION['msg'] = "Sản phẩm không tồn tại!";
         }
 
+        // Trở lại trang chi tiết sản phẩm
+        header("Location: " . BASE_URL . "?action=detail&id=" . $id);
+        exit;
     }
+    public function cart()
+    {
+        $title = "Giỏ hàng";
+        $view = 'client/cart';
+        require_once PATH_VIEW . 'main.php';
     }
-
-
-
-
+}
 ?>

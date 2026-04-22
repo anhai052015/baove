@@ -1,17 +1,21 @@
-<?php 
+<?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-spl_autoload_register(function ($class) {    
+spl_autoload_register(function ($class) {
     $fileName = "$class.php";
 
-    $fileModel              = PATH_MODEL . $fileName;
-    $fileController         = PATH_CONTROLLER . $fileName;
+    $fileModel = PATH_MODEL . $fileName;
+    $fileController = PATH_CONTROLLER . $fileName;
 
     if (is_readable($fileModel)) {
         require_once $fileModel;
-    } 
-    else if (is_readable($fileController)) {
+    } else if (is_readable($fileController)) {
         require_once $fileController;
     }
 });

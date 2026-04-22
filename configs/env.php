@@ -1,29 +1,31 @@
 <?php
 
-define('BASE_URL',          'http://localhost:8080/duanmau/baove/');
+define('BASE_URL', 'http://localhost/baove/');
 
-define('BASE_URL_ADDMIN',          'http://localhost:8080/duanmau/baove/?mode=addmin');
 
-define('PATH_ROOT',         __DIR__ . '/../');
+define('BASE_URL_ADMIN', 'http://localhost/baove/?mode=admin');
 
-define('PATH_VIEW',         PATH_ROOT . 'views/');
+define('PATH_ROOT', __DIR__ . '/../');
 
-define('PATH_VIEW_MAIN',    PATH_ROOT . 'views/main.php');
+define('PATH_VIEW', PATH_ROOT . 'views/');
 
-define('BASE_ASSETS_UPLOADS',   BASE_URL . 'assets/uploads/');
+define('PATH_VIEW_MAIN', PATH_ROOT . 'views/main.php');
 
-define('PATH_ASSETS_UPLOADS',   PATH_ROOT . 'assets/uploads/');
+define('BASE_ASSETS_UPLOADS', BASE_URL . 'assets/uploads/');
 
-define('PATH_CONTROLLER',       PATH_ROOT . 'controllers/');
+define('PATH_ASSETS_UPLOADS', PATH_ROOT . 'assets/uploads/');
 
-define('PATH_MODEL',            PATH_ROOT . 'models/');
+define('PATH_CONTROLLER', PATH_ROOT . 'controllers/');
 
-define('DB_HOST',     'localhost');
-define('DB_PORT',     '3306');
+define('PATH_MODEL', PATH_ROOT . 'models/');
+
+define('DB_HOST', 'localhost');
+define('DB_PORT', '3306');
 define('DB_USERNAME', 'root');
 define('DB_PASSWORD', '');
-define('DB_NAME',     'duanmau');
+define('DB_NAME', 'duanmau');
 define('DB_OPTIONS', [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
+?>

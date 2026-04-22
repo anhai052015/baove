@@ -1,23 +1,12 @@
 <style>
-    /* Căn giữa màn hình
-    body {
-        margin: 0;
-        padding: 0;
-        height: 100vh; /* Chiều cao toàn màn hình */
-        display: flex;
-        justify-content: center; /* Căn ngang */
-        align-items: center;     /* Căn dọc */
-        background-color: #f5f5f5; /* Màu nền nhẹ nhàng */
-        font-family: Arial, sans-serif;
-    } */
-
     .form-container {
         background: white;
         padding: 20px 30px;
         border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         width: 100%;
         max-width: 450px;
+        margin: 20px auto;
     }
 
     .form-container label {
@@ -42,8 +31,9 @@
 
     .form-container img {
         margin-top: 5px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         display: block;
+        border-radius: 4px;
     }
 
     .form-container button {
@@ -52,39 +42,52 @@
         border: none;
         cursor: pointer;
         font-size: 16px;
+        font-weight: bold;
     }
 
     .form-container button:hover {
         background-color: #45a049;
     }
+
+    .back-btn {
+        display: inline-block;
+        margin-bottom: 15px;
+        color: #007BFF;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .back-btn:hover {
+        text-decoration: underline;
+    }
 </style>
 
 <div class="form-container">
-    
-    <form action="<?= BASE_URL_ADDMIN . '&action=update' ?>" method="post" enctype="multipart/form-data">
+    <a href="<?= BASE_URL_ADMIN ?>" class="back-btn">&laquo; Trở lại</a>
+
+    <form action="<?= BASE_URL_ADMIN . '&action=update' ?>" method="post" enctype="multipart/form-data">
         <label for="">Tên sản phẩm</label>
-        <input type="text" name="name" value="<?= $product['name'] ?>">
+        <input type="text" name="name" value="<?= $product['name'] ?>" required>
 
         <label for="">Ảnh hiện tại</label>
-        <img src="<?= $product['thumbnail'] ?>" alt="Thumbnail" width="100">
+        <img src="<?= BASE_ASSETS_UPLOADS . $product['thumbnail'] ?>" alt="Thumbnail" width="120">
 
-        <label for="">Đổi ảnh</label>
+        <label for="">Đổi ảnh (Bỏ trống nếu giữ nguyên)</label>
         <input type="file" name="thumbnail">
 
         <label for="">Giá</label>
-        <input type="number" name="price" value="<?= $product['price'] ?>">
+        <input type="number" name="price" value="<?= $product['price'] ?>" required>
 
         <label for="">Mô tả</label>
-        <textarea name="description"><?= $product['description'] ?></textarea>
+        <textarea name="description" rows="3" required><?= $product['description'] ?></textarea>
 
         <label for="">Danh mục</label>
         <select name="category_id">
             <option value="<?= $product['category_id'] ?>" selected><?= $product['categoryName'] ?></option>
-            <!-- Các option khác có thể load từ DB -->
         </select>
 
         <input type="hidden" name="id" value="<?= $product['id'] ?>">
 
-        <button type="submit">Lưu</button>
+        <button type="submit">Lưu thay đổi</button>
     </form>
 </div>
